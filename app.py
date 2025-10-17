@@ -1,66 +1,76 @@
 import streamlit as st
 import re
 
-# Função de Extração de Dados (mantida a sua lógica original)
+# 1. Função de Extração (Revisada)
 def extrair_dados(texto):
-    """Extrai números, emails e URLs de um bloco de texto."""
-    # Usando st.cache_data para cachear resultados e otimizar o desempenho (opcional, mas recomendado)
+    """Extrai números, e-mails e URLs de um bloco de texto."""
     
-    # \d+
-    numeros = re.findall(r'\d+', texto)
+    # ------------------
+    # 1. REGEX (Seu código original de extração)
+    # ------------------
+    numeros = re.findall(r'\b\d{2,}\b', texto) 
+    emails = re.findall(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', texto)
+    urls = re.findall(r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+', texto)
     
-    # Padrão para emails
-    emails = re.findall(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', texto)
+    # ------------------
+    # 2. Formatar os Resultados em uma String ÚNICA para Download .TXT
+    # ------------------
     
-    # Padrão para URLs
-    urls = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', texto)
+    # Cria a string de saída formatada
+    output_text = "--- Resultados da Extração ---\n\n"
     
-    return numeros, emails, urls
+    output_text += f"Total de Números Encontrados: {len(numeros)}\n"
+    output_text += "NUMEROS ENCONTRADOS:\n"
+    output_text += "\n".join(numeros) + "\n\n"
+    
+    output_text += f"Total de E-mails Encontrados: {len(emails)}\n"
+    output_text += "E-MAILS ENCONTRADOS:\n"
+    output_text += "\n".join(emails) + "\n\n"
+    
+    output_text += f"Total de URLs Encontradas: {len(urls)}\n"
+    output_text += "URLS ENCONTRADAS:\n"
+    output_text += "\n".join(urls)
+    
+    return output_text, numeros, emails, urls
 
-# Configuração da Interface Streamlit
-def main():
-    st.set_page_config(page_title="Análise e Extração de Dados", layout="centered")
-    st.title("🔎 Análise e Extração de Dados")
-    st.markdown("Insira o texto para extrair automaticamente números, e-mails e URLs.")
 
-    # Equivalente ao tk.Text
-    texto_input = st.text_area("Área de Texto", height=200, 
-                               placeholder="Cole seu texto aqui, ex: Meu email é teste@exemplo.com e meu telefone é 123456. Acesse o link https://www.google.com.")
+# ----------------------------------------------------
+# APLICATIVO STREAMLIT
+# ----------------------------------------------------
 
-    # Equivalente ao tk.Button
-    if st.button("Extrair Dados", type="primary"):
-        if texto_input:
-            # Chama a função de extração
-            numeros, emails, urls = extrair_dados(texto_input)
-            
-            st.subheader("Resultados da Extração:")
-            
-            # Exibição dos resultados (Substituindo os tk.Label)
-            
-            # Resultados de Números
-            st.markdown("#### 🔢 Números Encontrados:")
-            if numeros:
-                st.success(', '.join(numeros))
-            else:
-                st.info("Nenhum número encontrado.")
+st.title("🔎 Extrator de Dados WebApp")
+st.markdown("Cole o texto abaixo para extrair números, e-mails e URLs.")
 
-            # Resultados de Emails
-            st.markdown("#### 📧 E-mails Encontrados:")
-            if emails:
-                # Usamos um conjunto (set) para remover duplicatas e depois voltamos para lista
-                st.success(', '.join(sorted(list(set(emails)))))
-            else:
-                st.info("Nenhum e-mail encontrado.")
-            
-            # Resultados de URLs
-            st.markdown("#### 🔗 URLs Encontradas:")
-            if urls:
-                # Usamos um conjunto (set) para remover duplicatas e depois voltamos para lista
-                st.success('\n\n'.join(sorted(list(set(urls)))))
-            else:
-                st.info("Nenhuma URL encontrada.")
-        else:
-            st.warning("Por favor, insira algum texto para extrair os dados.")
+# Área de entrada de texto
+input_text = st.text_area("Cole seu texto aqui:", height=300)
 
-if __name__ == "__main__":
-    main()
+# Botão para iniciar a extração
+if st.button("Extrair Dados"):
+    if input_text:
+        # Chama a função de extração
+        downloadable_data, n, e, u = extrair_dados(input_text)
+        
+        # Exibe os resultados na tela (opcional, mas bom para visualização)
+        st.subheader("Resultados da Extração")
+        
+        st.success(f"Extração Concluída! {len(n)} números, {len(e)} e-mails, {len(u)} URLs.")
+
+        # Exibe a string formatada no Streamlit (opcional)
+        st.code(downloadable_data, language='text')
+
+        # ----------------------------------------------------
+        # BOTAO DE DOWNLOAD (A SOLUÇÃO)
+        # ----------------------------------------------------
+        st.markdown("---")
+        
+        # O st.download_button PRECISA da string de dados e do nome do arquivo
+        st.download_button(
+            label="💾 Baixar Dados Extraídos (.txt)",
+            data=downloadable_data,
+            file_name="dados_extraidos.txt",
+            mime="text/plain" # Tipo de arquivo de texto simples
+        )
+        # ----------------------------------------------------
+
+    else:
+        st.warning("Por favor, cole algum texto para iniciar a extração.")
