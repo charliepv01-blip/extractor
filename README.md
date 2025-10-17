@@ -2,9 +2,7 @@
 
 # 🔎 Extrator de Dados
 
-Um aplicativo web simples e rápido, construído com Python e Streamlit, para extrair automaticamente números, endereços de e-mail e URLs de qualquer bloco de texto inserido.
-
-Este projeto migra a funcionalidade original de uma aplicação desktop Tkinter para um ambiente web, com deploy contínuo via Vercel e GitHub.
+Um aplicativo simples e rápido, construído com Python e Streamlit, para extrair automaticamente números, endereços de e-mail e URLs de qualquer bloco de texto inserido.
 
 ## ✨ Funcionalidades
 
