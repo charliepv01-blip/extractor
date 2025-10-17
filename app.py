@@ -1,27 +1,39 @@
 import streamlit as st
 import re
 
-# 1. Função de Extração (Revisada)
+# Função de Extração com Regex AVANÇADO
 def extrair_dados(texto):
-    """Extrai números, e-mails e URLs de um bloco de texto."""
+    """Extrai telefones (no lugar de números genéricos), e-mails e URLs."""
     
-    # ------------------
-    # 1. REGEX (Seu código original de extração)
-    # ------------------
-    numeros = re.findall(r'\b\d{2,}\b', texto) 
-    emails = re.findall(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', texto)
-    urls = re.findall(r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+', texto)
+    # NOVAS EXPRESSÕES REGULARES AVANÇADAS:
     
-    # ------------------
-    # 2. Formatar os Resultados em uma String ÚNICA para Download .TXT
-    # ------------------
+    # 1. Telefones Brasileiros (DDD opcional, 8/9 dígitos, com/sem separadores)
+    # Ex: (11) 98765-4321, 9876-5432, 11987654321
+    telefones = re.findall(
+        r'(?:\(?\d{2}\)?\s?)?(?:9\d{4}|\d{4})[-\s]?\d{4}', 
+        texto
+    )
     
-    # Cria a string de saída formatada
-    output_text = "--- Resultados da Extração ---\n\n"
+    # 2. E-mails (Padrão robusto)
+    emails = re.findall(
+        r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', 
+        texto
+    )
     
-    output_text += f"Total de Números Encontrados: {len(numeros)}\n"
-    output_text += "NUMEROS ENCONTRADOS:\n"
-    output_text += "\n".join(numeros) + "\n\n"
+    # 3. URLs/Links (HTTP/HTTPS opcional, WWW opcional)
+    # Ex: google.com, https://blog.streamlit.io/caminho
+    urls = re.findall(
+        r'(?:https?://)?(?:www\.)?[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:/\S*)?', 
+        texto
+    )
+    
+    # --- Formatação dos Resultados (para visualização e download) ---
+    
+    output_text = "--- Resultados da Extração Avançada ---\n\n"
+    
+    output_text += f"Total de TELEFONES Encontrados: {len(telefones)}\n"
+    output_text += "TELEFONES ENCONTRADOS:\n"
+    output_text += "\n".join(telefones) + "\n\n"
     
     output_text += f"Total de E-mails Encontrados: {len(emails)}\n"
     output_text += "E-MAILS ENCONTRADOS:\n"
@@ -31,8 +43,7 @@ def extrair_dados(texto):
     output_text += "URLS ENCONTRADAS:\n"
     output_text += "\n".join(urls)
     
-    return output_text, numeros, emails, urls
-
+    return output_text, telefones, emails, urls
 
 # ----------------------------------------------------
 # APLICATIVO STREAMLIT
