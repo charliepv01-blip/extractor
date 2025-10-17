@@ -1,6 +1,6 @@
 # Extrator
 
-# 🔎 Extrator de Dados WebApp
+# 🔎 Extrator de Dados
 
 Um aplicativo web simples e rápido, construído com Python e Streamlit, para extrair automaticamente números, endereços de e-mail e URLs de qualquer bloco de texto inserido.
 
